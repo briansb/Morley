@@ -50,6 +50,8 @@ import numpy as np
 
 
 # Third example
+# https://matplotlib.org/3.1.0/api/_as_gen/matplotlib.patches.Rectangle.html#matplotlib.patches.Rectangle
+
 class DraggableRectangle:
     def __init__(self, rect):
         self.rect = rect

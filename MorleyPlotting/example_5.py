@@ -76,7 +76,6 @@ def button_release_callback(event):
 
 def get_ind_under_point(event):
     'get the index of the vertex under point if within epsilon tolerance'
-
     # display coords
     #print('display x is: {0}; display y is: {1}'.format(event.x,event.y))
     t = ax1.transData.inverted()
@@ -121,7 +120,6 @@ X = np.arange(0,xmax+1,0.1)
 ax1.plot (X, func(X), 'k--', label='original')
 l, = ax1.plot (x,yvals,color='k',linestyle='none',marker='o',markersize=8)
 m, = ax1.plot (X, spline(X), 'r-', label='spline')
-
 
 
 ax1.set_yscale('linear')
