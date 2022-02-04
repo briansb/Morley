@@ -6,7 +6,7 @@ import pdb
 import numpy as np
 from matplotlib.lines import Line2D
 from matplotlib.artist import Artist
-from matplotlib.mlab import dist_point_to_segment
+#from matplotlib.mlab import dist_point_to_segment
 
 
 class TriangleInteractor(object):
@@ -108,7 +108,12 @@ class TriangleInteractor(object):
             for i in range(len(xys) - 1):
                 s0 = xys[i]
                 s1 = xys[i + 1]
-                d = dist_point_to_segment(p, s0, s1)
+                #d = dist_point_to_segment(p, s0, s1)
+                # https://github.com/ESMG/pyroms/issues/18
+                # https://stackoverflow.com/questions/39840030/distance-between-point-and-a-line-from-two-points
+                #d=np.cross(p2-p1,p3-p1)/norm(p2-p1)
+                d=np.cross(s1-s0,p-s0)/np.norm(s1-s0)
+
                 if d <= self.epsilon:
                     self.poly.xy = np.insert(
                         self.poly.xy, i+1,
