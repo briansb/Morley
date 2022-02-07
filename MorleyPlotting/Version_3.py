@@ -6,6 +6,8 @@ import pdb
 import numpy as np
 from matplotlib.lines import Line2D
 from matplotlib.artist import Artist
+import matplotlib.pyplot as plt
+from matplotlib.patches import Polygon
 #from matplotlib.mlab import dist_point_to_segment
 
 
@@ -150,9 +152,6 @@ class TriangleInteractor(object):
 
 
 if __name__ == '__main__':
-    import matplotlib.pyplot as plt
-    from matplotlib.patches import Polygon
-
     #theta = np.arange(0, 2*np.pi, 1.0)
     #r = 4
     #xs = r * np.cos(theta)
@@ -167,6 +166,7 @@ if __name__ == '__main__':
     ax.add_patch(poly)
     p = TriangleInteractor(ax, poly)
 
+    # this is just a line...can be removed
     x = [-2,2]
     y = [-2, 0]
     plt.plot(x,y)

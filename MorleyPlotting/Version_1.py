@@ -100,13 +100,26 @@ class DraggableRectangle:
         self.rect.figure.canvas.mpl_disconnect(self.cidrelease)
         self.rect.figure.canvas.mpl_disconnect(self.cidmotion)
 
-fig = plt.figure()
-ax = fig.add_subplot(111)
-rects = ax.bar(range(10), 20*np.random.rand(10))
+
+fig = plt.figure(figsize=(12,6))
+rects = plt.bar(range(3), 20*np.random.rand(3))
+
 drs = []
 for rect in rects:
     dr = DraggableRectangle(rect)
     dr.connect()
     drs.append(dr)
+
+line = plt.Line2D((2, 8), (6, 7), lw=1.5)
+plt.gca().add_line(line)
+plt.axis('scaled')
+
+rectangle = plt.Rectangle((0,0), 5, 2, fc='yellow',ec="red")
+plt.gca().add_patch(rectangle)
+plt.axis('scaled')
+
+circle = plt.Circle((5,10),1.5, fc='red',ec="red")
+plt.gca().add_patch(circle)
+plt.axis('scaled')
 
 plt.show()
