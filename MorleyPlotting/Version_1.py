@@ -1,7 +1,9 @@
 # https://matplotlib.org/3.1.0/users/event_handling.html
 
-
+import pdb
 import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
+from matplotlib.artist import Artist
 import numpy as np
 
 # # First example
@@ -52,9 +54,10 @@ import numpy as np
 # Third example
 # https://matplotlib.org/3.1.0/api/_as_gen/matplotlib.patches.Rectangle.html#matplotlib.patches.Rectangle
 
-class DraggableRectangle:
-    def __init__(self, rect):
+class DraggableRectangle(object):
+    def __init__(self, rect, line):
         self.rect = rect
+        self.line = line
         self.press = None
 
     def connect(self):
@@ -71,8 +74,11 @@ class DraggableRectangle:
         if event.inaxes != self.rect.axes: return
         contains, attrd = self.rect.contains(event)
         if not contains: return
-        print('event contains', self.rect.xy)
+        print('on_press x0, y0 = ', self.rect.xy)
+        print('\tmouse at ', event.xdata, event.ydata)
+        # x0, y0 are lower left coordinates of rectangle
         x0, y0 = self.rect.xy
+        # event.xdata, .ydata are coordinates of mouse when pressed
         self.press = x0, y0, event.xdata, event.ydata
 
     def on_release(self, event):
@@ -85,13 +91,18 @@ class DraggableRectangle:
         if self.press is None: return
         if event.inaxes != self.rect.axes: return
         x0, y0, xpress, ypress = self.press
+        print('on_motion x0, y0 - ', x0, y0)
+        print('\tmouse at ', event.xdata, event.ydata)
         dx = event.xdata - xpress
         dy = event.ydata - ypress
         #print('x0=%f, xpress=%f, event.xdata=%f, dx=%f, x0+dx=%f' %
         #      (x0, xpress, event.xdata, dx, x0+dx))
         self.rect.set_x(x0+dx)
         self.rect.set_y(y0+dy)
+        linex = self.line.get_xdata()
+        self.line.set_xdata([linex[0], linex[1] + dx])
         self.rect.figure.canvas.draw()
+        self.line.figure.canvas.draw()
 
 
     def disconnect(self):
@@ -102,24 +113,40 @@ class DraggableRectangle:
 
 
 fig = plt.figure(figsize=(12,6))
-rects = plt.bar(range(3), 20*np.random.rand(3))
+axes = plt.axes()
+axes.set_xlim([-1,12])
+axes.set_ylim([-1,6])
 
 drs = []
-for rect in rects:
-    dr = DraggableRectangle(rect)
-    dr.connect()
-    drs.append(dr)
+# rects = plt.bar(range(3), 10*np.random.rand(3))
+# for rect in rects:
 
-line = plt.Line2D((2, 8), (6, 7), lw=1.5)
-plt.gca().add_line(line)
-plt.axis('scaled')
+#     dr = DraggableRectangle(rect)
+#     dr.connect()
+#     drs.append(dr)
 
-rectangle = plt.Rectangle((0,0), 5, 2, fc='yellow',ec="red")
-plt.gca().add_patch(rectangle)
-plt.axis('scaled')
+line1 = plt.Line2D((4, 5), (4, 5.9), color='green', linewidth = 4)
+plt.gca().add_line(line1)
+#plt.axis('scaled')
 
-circle = plt.Circle((5,10),1.5, fc='red',ec="red")
+rectangle1 = plt.Rectangle((0,0), 5, 2, fc='yellow',ec="red")
+plt.gca().add_patch(rectangle1)
+#plt.axis('scaled')
+dr = DraggableRectangle(rectangle1, line1)
+dr.connect()
+drs.append(dr)
+
+rectangle2 = plt.Rectangle((1,4), 1, 1, fc='black',ec="red")
+plt.gca().add_patch(rectangle2)
+#plt.axis('scaled')
+dr = DraggableRectangle(rectangle2, line1)
+dr.connect()
+drs.append(dr)
+
+circle = plt.Circle((8,4),1.5, fc='red',ec="red")
 plt.gca().add_patch(circle)
-plt.axis('scaled')
+#plt.axis('scaled')
+
+
 
 plt.show()
