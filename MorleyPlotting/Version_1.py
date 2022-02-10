@@ -125,27 +125,32 @@ drs = []
 #     dr.connect()
 #     drs.append(dr)
 
-line1 = plt.Line2D((4, 5), (4, 5.9), color='green', linewidth = 4)
-plt.gca().add_line(line1)
+circle = plt.Circle((8,4),1.5, fc='red',ec="red")
+plt.gca().add_patch(circle)
 #plt.axis('scaled')
 
-rectangle1 = plt.Rectangle((0,0), 5, 2, fc='yellow',ec="red")
+rectangle1 = plt.Rectangle((3,0), 5, 2, fc='yellow',ec="red")
 plt.gca().add_patch(rectangle1)
 #plt.axis('scaled')
-dr = DraggableRectangle(rectangle1, line1)
-dr.connect()
-drs.append(dr)
 
 rectangle2 = plt.Rectangle((1,4), 1, 1, fc='black',ec="red")
 plt.gca().add_patch(rectangle2)
 #plt.axis('scaled')
+
+rect1xy = rectangle1.xy
+rect2xy = rectangle2.xy
+line1 = plt.Line2D((rect1xy[0], rect2xy[0]), (rect1xy[1], rect2xy[1]), color='green', linewidth = 4)
+plt.gca().add_line(line1)
+#plt.axis('scaled')
+
+
+
+dr = DraggableRectangle(rectangle1, line1)
+dr.connect()
+drs.append(dr)
 dr = DraggableRectangle(rectangle2, line1)
 dr.connect()
 drs.append(dr)
-
-circle = plt.Circle((8,4),1.5, fc='red',ec="red")
-plt.gca().add_patch(circle)
-#plt.axis('scaled')
 
 
 
