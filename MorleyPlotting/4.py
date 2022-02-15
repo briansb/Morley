@@ -7,7 +7,7 @@ from matplotlib.lines import Line2D
 pi = math.acos(-1.0)
 radian_to_degrees = 360.0 / (2.0 * pi)
 
-def ComputeSlopeAndYintercept(y2, y1, x2, x1):
+def ComputeSlopeAndInterceptFromTwoPoints(y2, y1, x2, x1):
     slope = (y2 - y1) / (x2 - x1)
     intercept = y1 - x1 * slope
     return slope, intercept
@@ -122,7 +122,7 @@ class MoveableCircle(object):
     def recompute_line_equation(self, event, i, j):
         x = self.lines[i].get_xdata()
         y = self.lines[i].get_ydata()
-        slope, intercept = ComputeSlopeAndYintercept(y[1], y[0], x[1], x[0])
+        slope, intercept = ComputeSlopeAndInterceptFromTwoPoints(y[1], y[0], x[1], x[0])
         line_eqn = f"y = {slope:.2f}x + {intercept:.2f}"
         angle = math.atan(slope) * radian_to_degrees
         if i == 0:
@@ -143,7 +143,7 @@ class MoveableCircle(object):
 
         x = self.lines[j].get_xdata()
         y = self.lines[j].get_ydata()
-        slope, intercept = ComputeSlopeAndYintercept(y[1], y[0], x[1], x[0])
+        slope, intercept = ComputeSlopeAndInterceptFromTwoPoints(y[1], y[0], x[1], x[0])
         line_eqn = f"y = {slope:.2f}x + {intercept:.2f}"
         angle = math.atan(slope) * radian_to_degrees
         if j == 0:
@@ -219,21 +219,21 @@ vertices.append(vertex3)
 
 ###########################  equations 1,2,3   ###############################################
 
-slope, intercept = ComputeSlopeAndYintercept(vy, uy, vx, ux)
+slope, intercept = ComputeSlopeAndInterceptFromTwoPoints(vy, uy, vx, ux)
 line_eqn = f"y = {slope:.2f}x + {intercept:.2f}"
 angle = math.atan(slope) * radian_to_degrees
 x, y = NthwayPoint(line1, 0.3)
 equation1 = plt.text(x + 0.1, y + 0.1, line_eqn, fontsize=12, rotation=angle, rotation_mode='anchor', va='bottom')
 equations.append(equation1)
 
-slope, intercept = ComputeSlopeAndYintercept(wy, vy, wx, vx)
+slope, intercept = ComputeSlopeAndInterceptFromTwoPoints(wy, vy, wx, vx)
 line_eqn = f"y = {slope:.2f}x + {intercept:.2f}"
 angle = math.atan(slope) * radian_to_degrees
 x, y = NthwayPoint(line2, 0.7)
 equation2 = plt.text(x + 0.1, y - 0.1, line_eqn, fontsize=12, rotation=angle, rotation_mode='anchor', va='top')
 equations.append(equation2)
 
-slope, intercept = ComputeSlopeAndYintercept(uy, wy, ux, wx)
+slope, intercept = ComputeSlopeAndInterceptFromTwoPoints(uy, wy, ux, wx)
 line_eqn = f"y = {slope:.2f}x + {intercept:.2f}"
 angle = math.atan(slope) * radian_to_degrees
 x, y = NthwayPoint(line3, 0.7)
