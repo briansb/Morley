@@ -26,6 +26,16 @@ def ComputeSlopeAndInterceptFromTwoSlopes(a1, a4, index, x, y):
     intercept = y - (slope * x)
     return slope, intercept
 
+def ComputeTwoNewLines(a1, a4, x_p, y_p):
+    a2, b2 = ComputeSlopeAndInterceptFromTwoSlopes(a1, a4, 1, x_p, y_p)
+    a3, b3 = ComputeSlopeAndInterceptFromTwoSlopes(a1, a4, 2, x_p, y_p)
+    x1 = 10
+    y1 = a2*x1 + b2
+    x2 = 10
+    y2 = a3*x2 + b3
+    return x1, x2, y1, y2
+
+
 def NthwayPoint(line, factor):
     x = line.get_xdata()
     y = line.get_ydata()
@@ -89,17 +99,18 @@ class MoveableCircle(object):
             self.redraw_exterior_lines(event, x0, y0, dx, dy, 0, 2)
             self.redraw_vertex_text(event, 0)
             self.recompute_line_equation(event, 0, 2)
-            self.redraw_interior_lines(event, x0, y0, dx, dy, 3, 4)
+            # when the circle moves, if affects all interior lines
+            self.redraw_interior_lines(event)
         elif self.circle.get_label() == "duo":
             self.redraw_exterior_lines(event, x0, y0, dx, dy, 1, 0)
             self.redraw_vertex_text(event, 1)
             self.recompute_line_equation(event, 1, 0)
-
+            self.redraw_interior_lines(event)
         elif self.circle.get_label() == "tres":
             self.redraw_exterior_lines(event, x0, y0, dx, dy, 2, 1)
             self.redraw_vertex_text(event, 2)
             self.recompute_line_equation(event, 2, 1)
-
+            self.redraw_interior_lines(event)
         else:
             print("Should not be here - statement 1")
 
@@ -122,6 +133,27 @@ class MoveableCircle(object):
         self.lines[j].set_xdata(x)
         self.lines[j].set_ydata(y)
         
+    def redraw_interior_lines(self, event):
+        #line 4, 5
+        x = self.lines[0].get_xdata()
+        y = self.lines[0].get_ydata()
+        vertex_x = x[0]
+        vertex_y = y[0]
+        a1, b1 = ComputeSlopeAndInterceptFromTwoPoints(y[1], y[0], x[1], x[0])
+        x = self.lines[2].get_xdata()
+        y = self.lines[2].get_ydata()
+        a4, b4 = ComputeSlopeAndInterceptFromTwoPoints(y[1], y[0], x[1], x[0])
+        x1, x2, y1, y2 = ComputeTwoNewLines(a1, a4, vertex_x, vertex_y)
+        x = [vertex_x, x1]
+        y = [vertex_y, y1]
+        self.lines[3].set_xdata(x)
+        self.lines[3].set_ydata(y)
+        x = [vertex_x, x2]
+        y = [vertex_y, y2]
+        self.lines[4].set_xdata(x)
+        self.lines[4].set_ydata(y)
+
+
     def redraw_vertex_text(self, event, i):
         newx, newy = self.circle.center
         text = f'({newx:.1f},{newy:.1f})'
@@ -179,22 +211,7 @@ class MoveableCircle(object):
         self.equations[j].set_text(line_eqn)
         self.equations[j].set_rotation(angle)
 
-    def redraw_interior_lines(self, event, x0, y0, dx, dy, i, j):
-        x = self.lines[i].get_xdata()
-        y = self.lines[i].get_ydata()
-        x[0] = x0 + dx
-        y[0] = y0 + dy
-        self.lines[i].set_xdata(x)
-        self.lines[i].set_ydata(y)
 
-
-
-        x = self.lines[j].get_xdata()
-        y = self.lines[j].get_ydata()
-        x[0] = x0 + dx
-        y[0] = y0 + dy
-        self.lines[j].set_xdata(x)
-        self.lines[j].set_ydata(y)
 
 
 ##################################   Main    ######################################
@@ -236,34 +253,24 @@ line3 = plt.Line2D(x, y, color='black', linewidth = 4)
 plt.gca().add_line(line3)
 lines.append(line3)
 
-########################### lines 4,5 ##################################################
+########################### lines 4,5,6,7,8,9 ##################################################
 
-a1, intercept = ComputeSlopeAndInterceptFromTwoPoints(vy, uy, vx, ux)
-a4, intercept = ComputeSlopeAndInterceptFromTwoPoints(uy, wy, ux, wx)
-a2, b2 = ComputeSlopeAndInterceptFromTwoSlopes(a1, a4, 1, ux, uy)
-a3, b3 = ComputeSlopeAndInterceptFromTwoSlopes(a1, a4, 2, ux, uy)
-
-line_eqn = f"y = {a2:.2f}x + {b2:.2f}"
-temp1 = plt.text(-2, 2, line_eqn, fontsize=12, rotation=0, rotation_mode='anchor')
-line_eqn = f"y = {a3:.2f}x + {b3:.2f}"
-temp2 = plt.text(-2, 0, line_eqn, fontsize=12, rotation=0, rotation_mode='anchor')
-
-#  need to compute endpoints
-#  endpoints don't have to be on plot, so, for lines 4 and 5, use x = 10, then compute y
-x2 = 10     # line 4
-y2 = a2 * x2 + b2
-x = [ux, x2]
-y = [uy, y2]
+# line 4, 5
+a1, b1 = ComputeSlopeAndInterceptFromTwoPoints(vy, uy, vx, ux)
+a4, b4 = ComputeSlopeAndInterceptFromTwoPoints(wy, uy, wx, ux)
+x1, x2, y1, y2 = ComputeTwoNewLines(a1, a4, ux, uy)
+x = [ux, x1]
+y = [uy, y1]
 line4 = plt.Line2D(x, y, color='green', linewidth = 2)
 plt.gca().add_line(line4)
 lines.append(line4)
 
-y2 = a3 * x2 + b3    # line 5
 x = [ux, x2]
 y = [uy, y2]
 line5 = plt.Line2D(x, y, color='green', linewidth = 2)
 plt.gca().add_line(line5)
 lines.append(line5)
+
 
 ########################### vertices 1,2,3 #############################################
 
