@@ -17,11 +17,12 @@ def ComputeSlopeAndInterceptFromTwoSlopes(a1, a4, index, x, y):
     # index = 2 for second line of trisect
     theta1 = math.atan(a1)
     theta4 = math.atan(a4)
-
+    delta = theta4 - theta1
     if index == 1:
-        theta = theta1 + ((theta4 - theta1) / 3.0)
+        theta = theta1 + (delta / 3.0)      
     if index == 2:
-        theta = theta1 + ((2.0/3.0) * (theta4 - theta1))
+        theta = theta1 + ((2.0/3.0) * delta)
+
     slope = math.tan(theta)
     intercept = y - (slope * x)
     return slope, intercept
@@ -172,8 +173,9 @@ class MoveableCircle(object):
         x = self.lines[i].get_xdata()
         y = self.lines[i].get_ydata()
         slope, intercept = ComputeSlopeAndInterceptFromTwoPoints(y[1], y[0], x[1], x[0])
-        line_eqn = f"y = {slope:.2f}x + {intercept:.2f}"
         angle = math.atan(slope) * radian_to_degrees
+        line_eqn = f"y = {slope:.2f}x({angle:.1f}) + {intercept:.2f}"
+        
         if i == 0:
             x, y = NthwayPoint(self.lines[i], 0.3)
             self.equations[i].set_x(x + 0.1)
@@ -193,8 +195,8 @@ class MoveableCircle(object):
         x = self.lines[j].get_xdata()
         y = self.lines[j].get_ydata()
         slope, intercept = ComputeSlopeAndInterceptFromTwoPoints(y[1], y[0], x[1], x[0])
-        line_eqn = f"y = {slope:.2f}x + {intercept:.2f}"
         angle = math.atan(slope) * radian_to_degrees
+        line_eqn = f"y = {slope:.2f}x({angle:.1f}) + {intercept:.2f}"
         if j == 0:
             x, y = NthwayPoint(self.lines[j], 0.3)
             self.equations[j].set_x(x + 0.1)
@@ -219,6 +221,9 @@ fig = plt.figure(figsize=(16,10))
 axes = plt.axes()
 axes.set_xlim([-2,14])
 axes.set_ylim([-2,8])
+# for testing with Plot 2
+# axes.set_xlim([-16,36])
+# axes.set_ylim([-6,26])
 
 # initial values
 ux = 2
@@ -289,22 +294,22 @@ vertices.append(vertex3)
 ###########################  equations 1,2,3   ###############################################
 
 slope, intercept = ComputeSlopeAndInterceptFromTwoPoints(vy, uy, vx, ux)
-line_eqn = f"y = {slope:.2f}x + {intercept:.2f}"
 angle = math.atan(slope) * radian_to_degrees
+line_eqn = f"y = {slope:.2f}x({angle:.1f}) + {intercept:.2f}"
 x, y = NthwayPoint(line1, 0.3)
 equation1 = plt.text(x + 0.1, y + 0.1, line_eqn, fontsize=12, rotation=angle, rotation_mode='anchor', va='bottom')
 equations.append(equation1)
 
 slope, intercept = ComputeSlopeAndInterceptFromTwoPoints(wy, vy, wx, vx)
-line_eqn = f"y = {slope:.2f}x + {intercept:.2f}"
 angle = math.atan(slope) * radian_to_degrees
+line_eqn = f"y = {slope:.2f}x + {intercept:.2f}"
 x, y = NthwayPoint(line2, 0.7)
 equation2 = plt.text(x + 0.1, y - 0.1, line_eqn, fontsize=12, rotation=angle, rotation_mode='anchor', va='top')
 equations.append(equation2)
 
 slope, intercept = ComputeSlopeAndInterceptFromTwoPoints(uy, wy, ux, wx)
-line_eqn = f"y = {slope:.2f}x + {intercept:.2f}"
 angle = math.atan(slope) * radian_to_degrees
+line_eqn = f"y = {slope:.2f}x + {intercept:.2f}"
 x, y = NthwayPoint(line3, 0.7)
 equation3 = plt.text(x - 0.1, y - 0.1, line_eqn, fontsize=12, rotation=angle, rotation_mode='anchor', va='top')
 equations.append(equation3)
