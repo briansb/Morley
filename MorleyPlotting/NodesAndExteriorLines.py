@@ -12,13 +12,6 @@ def ComputeSlopeAndInterceptFromTwoPoints(y2, y1, x2, x1):
     intercept = y1 - x1 * slope
     return slope, intercept
 
-def NthwayPoint(line, factor):
-    x = line.get_xdata()
-    y = line.get_ydata()
-    x_mid = ((x[1] - x[0]) * factor) + x[0]
-    y_mid = ((y[1] - y[0]) * factor) + y[0]
-    return x_mid, y_mid
-
 class MoveableCircle(object):
     def __init__(self, circle, lines, vertices, equations):
         self.circle = circle
@@ -72,17 +65,21 @@ class MoveableCircle(object):
 
         # re-draw lines, move vertex text (coordinates), compute and display slope and y-intercept
         if self.circle.get_label() == "unus":
-            self.redraw_lines(event, x0, y0, dx, dy, 0, 2)
+            self.redraw_exterior_lines(event, x0, y0, dx, dy, 0, 2)
             self.redraw_vertex_text(event, 0)
             self.recompute_line_equation(event, 0, 2)
+            # when the circle moves, if affects all interior lines
+            self.redraw_interior_lines(event)
         elif self.circle.get_label() == "duo":
-            self.redraw_lines(event, x0, y0, dx, dy, 1, 0)
+            self.redraw_exterior_lines(event, x0, y0, dx, dy, 1, 0)
             self.redraw_vertex_text(event, 1)
             self.recompute_line_equation(event, 1, 0)
+            self.redraw_interior_lines(event)
         elif self.circle.get_label() == "tres":
-            self.redraw_lines(event, x0, y0, dx, dy, 2, 1)
+            self.redraw_exterior_lines(event, x0, y0, dx, dy, 2, 1)
             self.redraw_vertex_text(event, 2)
             self.recompute_line_equation(event, 2, 1)
+            self.redraw_interior_lines(event)
         else:
             print("Should not be here - statement 1")
 
@@ -90,7 +87,7 @@ class MoveableCircle(object):
         self.circle.figure.canvas.draw()
         #  end of on_motion event
 
-    def redraw_lines(self, event, x0, y0, dx, dy, i, j):
+    def redraw_exterior_lines(self, event, x0, y0, dx, dy, i, j):
         x = self.lines[i].get_xdata()
         y = self.lines[i].get_ydata()
         x[0] = x0 + dx
@@ -105,62 +102,29 @@ class MoveableCircle(object):
         self.lines[j].set_xdata(x)
         self.lines[j].set_ydata(y)
         
+    def redraw_interior_lines(self, event):
+        return 3
+
     def redraw_vertex_text(self, event, i):
         newx, newy = self.circle.center
         text = f'({newx:.1f},{newy:.1f})'
-        if i == 0:
-            self.vertices[i].set_x(newx - 0.15*len(text))
-            self.vertices[i].set_y(newy - 0.01*len(text))
-        if i == 1:
-            self.vertices[i].set_x(newx + 0.04*len(text))
-            self.vertices[i].set_y(newy - 0.01*len(text))
-        if i == 2:
-            self.vertices[i].set_x(newx - 0.05*len(text))
-            self.vertices[i].set_y(newy -  0.06*len(text))
         self.vertices[i].set_text(text)
 
     def recompute_line_equation(self, event, i, j):
         x = self.lines[i].get_xdata()
         y = self.lines[i].get_ydata()
         slope, intercept = ComputeSlopeAndInterceptFromTwoPoints(y[1], y[0], x[1], x[0])
-        line_eqn = f"y = {slope:.2f}x + {intercept:.2f}"
         angle = math.atan(slope) * radian_to_degrees
-        if i == 0:
-            x, y = NthwayPoint(self.lines[i], 0.3)
-            self.equations[i].set_x(x + 0.1)
-            self.equations[i].set_y(y + 0.1)
-        if i == 1:
-            x, y = NthwayPoint(self.lines[i], 0.7)
-            self.equations[i].set_x(x + 0.1)
-            self.equations[i].set_y(y - 0.1)
-        if i == 2:
-            x, y = NthwayPoint(self.lines[i], 0.7)
-            self.equations[i].set_x(x - 0.1)
-            self.equations[i].set_y(y - 0.1)
-
+        line_eqn = f"y = {slope:.2f}x({angle:.1f}) + {intercept:.2f}"
         self.equations[i].set_text(line_eqn)
-        self.equations[i].set_rotation(angle)
 
         x = self.lines[j].get_xdata()
         y = self.lines[j].get_ydata()
         slope, intercept = ComputeSlopeAndInterceptFromTwoPoints(y[1], y[0], x[1], x[0])
-        line_eqn = f"y = {slope:.2f}x + {intercept:.2f}"
         angle = math.atan(slope) * radian_to_degrees
-        if j == 0:
-            x, y = NthwayPoint(self.lines[j], 0.3)
-            self.equations[j].set_x(x + 0.1)
-            self.equations[j].set_y(y + 0.1)
-        if j == 1:
-            x, y = NthwayPoint(self.lines[j], 0.7)
-            self.equations[j].set_x(x + 0.1)
-            self.equations[j].set_y(y - 0.1)
-        if j == 2:
-            x, y = NthwayPoint(self.lines[j], 0.7)
-            self.equations[j].set_x(x - 0.1)
-            self.equations[j].set_y(y - 0.1)
-
+        line_eqn = f"y = {slope:.2f}x({angle:.1f}) + {intercept:.2f}"
         self.equations[j].set_text(line_eqn)
-        self.equations[j].set_rotation(angle)
+
 
 
 
@@ -169,6 +133,11 @@ fig = plt.figure(figsize=(16,10))
 axes = plt.axes()
 axes.set_xlim([-2,14])
 axes.set_ylim([-2,8])
+# for testing with Plot 2
+# axes.set_xlim([-16,36])
+# axes.set_ylim([-6,26])
+font_size = 12
+
 
 # initial values
 ux = 2
@@ -203,41 +172,39 @@ line3 = plt.Line2D(x, y, color='black', linewidth = 4)
 plt.gca().add_line(line3)
 lines.append(line3)
 
+
 ########################### vertices 1,2,3 #############################################
 
 text = f'({ux:.1f},{uy:.1f})'
-vertex1 = plt.text(ux - 0.15*len(text), uy - 0.01*len(text), text, fontsize=12, rotation=0, rotation_mode='anchor')
+vertex1 = plt.text(0 + 0.02, 1 - 0.03, text, fontsize=font_size, transform=axes.transAxes)
 vertices.append(vertex1)
 
 text = f'({vx:.1f},{vy:.1f})'
-vertex2 = plt.text(vx + 0.04*len(text), vy - 0.01*len(text), text, fontsize=12, rotation=0, rotation_mode='anchor')
+vertex2 = plt.text(1 - 0.17, 1 - 0.03, text, fontsize=font_size, transform=axes.transAxes)
 vertices.append(vertex2)
 
 text = f'({wx:.1f},{wy:.1f})'
-vertex3 = plt.text(wx - 0.05*len(text), wy - 0.06*len(text), text, fontsize=12, rotation=0, rotation_mode='anchor')
+vertex3 = plt.text(0.5 - 0.1, 0 + 0.04, text, fontsize=font_size, transform=axes.transAxes)
 vertices.append(vertex3)
 
 ###########################  equations 1,2,3   ###############################################
 
 slope, intercept = ComputeSlopeAndInterceptFromTwoPoints(vy, uy, vx, ux)
-line_eqn = f"y = {slope:.2f}x + {intercept:.2f}"
 angle = math.atan(slope) * radian_to_degrees
-x, y = NthwayPoint(line1, 0.3)
-equation1 = plt.text(x + 0.1, y + 0.1, line_eqn, fontsize=12, rotation=angle, rotation_mode='anchor', va='bottom')
+line_eqn = f"y = {slope:.2f}x({angle:.1f}) + {intercept:.2f}"
+equation1 = plt.text(0 + 0.02, 1 - 0.06, line_eqn, fontsize=font_size, transform=axes.transAxes)
 equations.append(equation1)
 
 slope, intercept = ComputeSlopeAndInterceptFromTwoPoints(wy, vy, wx, vx)
-line_eqn = f"y = {slope:.2f}x + {intercept:.2f}"
 angle = math.atan(slope) * radian_to_degrees
-x, y = NthwayPoint(line2, 0.7)
-equation2 = plt.text(x + 0.1, y - 0.1, line_eqn, fontsize=12, rotation=angle, rotation_mode='anchor', va='top')
+line_eqn = f"y = {slope:.2f}x({angle:.1f}) + {intercept:.2f}"
+equation2 = plt.text(1 - 0.17, 1 - 0.06, line_eqn, fontsize=font_size, transform=axes.transAxes)
 equations.append(equation2)
 
 slope, intercept = ComputeSlopeAndInterceptFromTwoPoints(uy, wy, ux, wx)
-line_eqn = f"y = {slope:.2f}x + {intercept:.2f}"
 angle = math.atan(slope) * radian_to_degrees
-x, y = NthwayPoint(line3, 0.7)
-equation3 = plt.text(x - 0.1, y - 0.1, line_eqn, fontsize=12, rotation=angle, rotation_mode='anchor', va='top')
+line_eqn = f"y = {slope:.2f}x({angle:.1f}) + {intercept:.2f}"
+equation3 = plt.text(0.5 - 0.1, 0 + 0.01, line_eqn, fontsize=font_size, transform=axes.transAxes)
 equations.append(equation3)
 
 ###########################  circles 1,2,3 ######################################################
