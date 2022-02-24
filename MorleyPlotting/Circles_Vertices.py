@@ -1,5 +1,15 @@
 # https://matplotlib.org/3.1.0/users/event_handling.html
 
+####  Plan  ####
+#  1. Draw circles
+#  2. Draw vertex text
+#  3. 
+
+
+
+#  Then, on_motion, re-draw everybody
+
+
 import pdb
 import math
 import matplotlib.pyplot as plt
@@ -13,10 +23,10 @@ def Vertex_text(x, y):
     return f'({x:.1f},{y:.1f})'
 
 class MoveableCircle(object):
-    def __init__(self, circle, points, vertices):
+    def __init__(self, circle, vertices, vertex_text):
         self.circle = circle
-        self.points = points
         self.vertices = vertices
+        self.vertex_text = vertex_text
         self.press = None
 
     def connect(self):
@@ -56,6 +66,7 @@ class MoveableCircle(object):
         dy = event.ydata - ypress
         x += dx
         y += dy
+        # 1. Re-draw circle
         self.circle.center = (x, y)
 
         # update u, v, w so that the new values are available to any item
@@ -65,12 +76,12 @@ class MoveableCircle(object):
             index = 1
         elif self.circle.get_label() == "tres":
             index = 2
-        
-        self.points[index] = (x,y)
-        #  1.  Update vertex text
+        self.vertices[index] = (x,y)
+
+        #  2.  Re-draw vertex text
         text = Vertex_text(x, y)
-        self.vertices[index].set_text(text)
-        #  2.  Update lines
+        self.vertex_text[index].set_text(text)
+
 
 
 
@@ -79,6 +90,11 @@ class MoveableCircle(object):
 
 
 ##################################   Main    ######################################
+
+vertices = []       # u, v, and w
+circles = []        # circles are plt.Circle()
+vertex_text = []    # vertex_text are plt.text
+
 fig = plt.figure(figsize=(16,10))
 axes = plt.axes()
 axes.set_xlim([-2,14])
@@ -89,56 +105,51 @@ axes.set_ylim([-2,8])
 font_size = 12
 radius = 0.25
 
-# set the three points
+# set the three vertices
 u = Point(2, 5)
 v = Point(10, 3)
 w = Point(4, 0)
-points = []
-points.append(u)
-points.append(v)
-points.append(w)
 
-circles = []        # circles are plt.Circle()
-vertices = []       # vertices are plt.text
-
+vertices.append(u)
+vertices.append(v)
+vertices.append(w)
 
 ###########################  circles 1,2,3 ######################################################
+#  1. Draw circles
 
-circle1 = plt.Circle((points[0].x,  points[0].y), radius, fc="blue", label="unus")
+circle1 = plt.Circle((vertices[0].x,  vertices[0].y), radius, fc="blue", label="unus")
 plt.gca().add_patch(circle1)
-circle = MoveableCircle(circle1, points, vertices)
+circle = MoveableCircle(circle1, vertices, vertex_text)
 circle.connect()
 circles.append(circle)
 
-circle2 = plt.Circle((points[1].x,  points[1].y), radius, fc="blue", label="duo")
+circle2 = plt.Circle((vertices[1].x,  vertices[1].y), radius, fc="blue", label="duo")
 plt.gca().add_patch(circle2)
-circle = MoveableCircle(circle2, points, vertices)
+circle = MoveableCircle(circle2, vertices, vertex_text)
 circle.connect()
 circles.append(circle)
 
-circle3 = plt.Circle((points[2].x,  points[2].y), radius, fc="blue", label="tres")
+circle3 = plt.Circle((vertices[2].x,  vertices[2].y), radius, fc="blue", label="tres")
 plt.gca().add_patch(circle3)
-circle = MoveableCircle(circle3, points, vertices)
+circle = MoveableCircle(circle3, vertices, vertex_text)
 circle.connect()
 circles.append(circle)
 
 
-##########################  vertices 1,2,3  #########################################
+##########################  vertex_text 1,2,3  #########################################
+#  2. Draw vertex text
 
-text = Vertex_text(points[0].x, points[0].y)
-vertex1 = plt.text(0.01, 0.98, text, fontsize=font_size, transform=axes.transAxes)
-vertices.append(vertex1)
+text = Vertex_text(vertices[0].x, vertices[0].y)
+vertex_text1 = plt.text(0.01, 0.98, text, fontsize=font_size, transform=axes.transAxes)
+vertex_text.append(vertex_text1)
 
-text = Vertex_text(points[1].x, points[1].y)
-vertex2 = plt.text(0.93, 0.98, text, fontsize=font_size, transform=axes.transAxes)
-vertices.append(vertex2)
+text = Vertex_text(vertices[1].x, vertices[1].y)
+vertex_text2 = plt.text(0.93, 0.98, text, fontsize=font_size, transform=axes.transAxes)
+vertex_text.append(vertex_text2)
 
-text = Vertex_text(points[2].x, points[2].y)
-vertex3 = plt.text(0.47, 0.01, text, fontsize=font_size, transform=axes.transAxes)
-vertices.append(vertex3)
-
-
-#########################  lines 1,2,3  ############################################
+text = Vertex_text(vertices[2].x, vertices[2].y)
+vertex_text3 = plt.text(0.47, 0.01, text, fontsize=font_size, transform=axes.transAxes)
+vertex_text.append(vertex_text3)
 
 
 
