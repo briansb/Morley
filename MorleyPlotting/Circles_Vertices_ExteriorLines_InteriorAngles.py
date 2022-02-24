@@ -47,6 +47,14 @@ def GetAngleFromHorizontal(i):
     a_mag = math.sqrt(a_x*a_x + a_y*a_y)
     cosine = dot_product / a_mag
     theta = math.acos(cosine)
+    # adjust based on quadrant
+    if a_x >= 0:
+         if a_y < 0:
+             theta = theta * (-1.0)
+    else:
+        theta = pi - theta
+        if a_y > 0:
+            theta = theta * (-1.0)
     return theta * radian_to_degrees
 
 class MoveableCircle(object):
