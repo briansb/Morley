@@ -6,6 +6,8 @@
 #  3.  Draw exterior lines
 #  4.  Get interior angles
 #  5.  Get angle from horizontal
+#  6.  Get equations for interior lines
+
 
 #  Then, on_motion, re-draw everybody
 
@@ -58,13 +60,14 @@ def GetAngleFromHorizontal(i):
     return theta * radian_to_degrees
 
 class MoveableCircle(object):
-    def __init__(self, circle, vertices, vertex_text, lines, interior_angles_text, angle_from_horizontal_text):
+    def __init__(self, circle, vertices, vertex_text, lines, interior_angles_text, angle_from_horizontal_text, interior_line_equation_text):
         self.circle = circle
         self.vertices = vertices
         self.vertex_text = vertex_text
         self.lines = lines
         self.interior_angles_text = interior_angles_text
         self.angle_from_horizontal_text = angle_from_horizontal_text
+        self.interior_line_equation_text = interior_line_equation_text
         self.press = None
 
     def redraw_line(self, i, j, x, y):
@@ -167,6 +170,19 @@ class MoveableCircle(object):
         text = f'Alpha3 = {angle:.2f}'
         self.angle_from_horizontal_text[2].set_text(text)
 
+        #  6.  Re-compute slope, intercept of interior lines
+        angle_from_horizontal = GetAngleFromHorizontal(0) - (GetInteriorAngle(0,2) / 3.0)
+        slope = math.tan(angle_from_horizontal / radian_to_degrees)
+        intercept = y - (slope * x)
+        text = f'y = {slope:.2f}x + {intercept:.1f}'
+        self.interior_line_equation_text[0].set_text(text)
+        angle_from_horizontal = GetAngleFromHorizontal(0) - 2.0 * (GetInteriorAngle(0,2) / 3.0)
+        slope = math.tan(angle_from_horizontal / radian_to_degrees)
+        intercept = y - (slope * x)
+        text = f'y = {slope:.2f}x + {intercept:.1f}'
+        self.interior_line_equation_text[1].set_text(text)
+
+
 
         self.circle.figure.canvas.draw()
     ######  end of on_motion event  ##################
@@ -181,6 +197,7 @@ vertex_text = []    # vertex_text are plt.text
 lines = []          # lines are the exterior (1-3) and interior lines (4-9)
 interior_angles_text = []  # interior_angles_text are plt.text
 angle_from_horizontal_text = []  # the angle each exterior line makes with horizontal
+interior_line_equation_text = []     # slope and y-intercept of the interior lines
 
 fig = plt.figure(figsize=(16,10))
 axes = plt.axes()
@@ -206,19 +223,19 @@ vertices.append(w)
 
 circle1 = plt.Circle((vertices[0].x,  vertices[0].y), radius, fc="blue", label="unus")
 plt.gca().add_patch(circle1)
-circle = MoveableCircle(circle1, vertices, vertex_text, lines, interior_angles_text, angle_from_horizontal_text)
+circle = MoveableCircle(circle1, vertices, vertex_text, lines, interior_angles_text, angle_from_horizontal_text, interior_line_equation_text)
 circle.connect()
 circles.append(circle)
 
 circle2 = plt.Circle((vertices[1].x,  vertices[1].y), radius, fc="blue", label="duo")
 plt.gca().add_patch(circle2)
-circle = MoveableCircle(circle2, vertices, vertex_text, lines, interior_angles_text, angle_from_horizontal_text)
+circle = MoveableCircle(circle2, vertices, vertex_text, lines, interior_angles_text, angle_from_horizontal_text, interior_line_equation_text)
 circle.connect()
 circles.append(circle)
 
 circle3 = plt.Circle((vertices[2].x,  vertices[2].y), radius, fc="blue", label="tres")
 plt.gca().add_patch(circle3)
-circle = MoveableCircle(circle3, vertices, vertex_text, lines, interior_angles_text, angle_from_horizontal_text)
+circle = MoveableCircle(circle3, vertices, vertex_text, lines, interior_angles_text, angle_from_horizontal_text, interior_line_equation_text)
 circle.connect()
 circles.append(circle)
 
@@ -288,6 +305,26 @@ angle = GetAngleFromHorizontal(2)
 text = f'Alpha3 = {angle:.2f}'
 angle_from_horizontal_text1 = plt.text(0.46, 0.01, text, fontsize=font_size, transform=axes.transAxes)
 angle_from_horizontal_text.append(angle_from_horizontal_text1)
+
+
+######################## interior line equations  ##################################################
+#  6.  Get the slope, y-intercept of the interior lines
+angle_from_horizontal = GetAngleFromHorizontal(0) - (GetInteriorAngle(0,2) / 3.0)
+slope = math.tan(angle_from_horizontal / radian_to_degrees)
+intercept = vertices[0].y - (slope * vertices[0].x)
+text = f'y = {slope:.2f}x + {intercept:.1f}'
+interior_line_equation_text1 = plt.text(0.01, 0.86, text, fontsize=font_size, transform=axes.transAxes)
+interior_line_equation_text.append(interior_line_equation_text1)
+
+angle_from_horizontal = GetAngleFromHorizontal(0) - 2.0 * (GetInteriorAngle(0,2) / 3.0)
+slope = math.tan(angle_from_horizontal / radian_to_degrees)
+intercept = vertices[0].y - (slope * vertices[0].x)
+text = f'y = {slope:.2f}x + {intercept:.1f}'
+interior_line_equation_text2 = plt.text(0.01, 0.82, text, fontsize=font_size, transform=axes.transAxes)
+interior_line_equation_text.append(interior_line_equation_text2)
+
+
+
 
 
 

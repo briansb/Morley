@@ -4,7 +4,15 @@
 #  1.  Draw circles
 #  2.  Draw vertex text
 #  3.  Draw exterior lines
-
+#  4.  Compute interior angles
+#  5.  Compute exerior angles
+#  6.  Compute slope, y-intercept of interior lines
+#  7.  Compute intersection of lines
+#  8.  Plot three inner points
+#  9.  Draw lines from vertices to inner points, ie, 
+#            plot lines 4 - 9
+# 10.  Draw lines connecting inner points
+# 11.  Compute side lengths of inner triangle
 
 #  Then, on_motion, re-draw everybody
 
@@ -14,37 +22,124 @@ import pdb
 import math
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
+from numpy import inner
+
+pi = math.acos(-1.0)
+radian_to_degrees = 360.0 / (2.0 * pi)
+
+def get_vertex_text(x, y):
+    return f'({x:.1f},{y:.1f})'
+
+def get_interior_angle(index):
+    if index == 1:    # get two vectors from vertex1 and compute dot product
+        vector1_x = v.x - u.x
+        vector1_y = v.y - u.y
+        vector2_x = w.x - u.x
+        vector2_y = w.y - u.y
+    elif index == 2: 
+        vector1_x = u.x - v.x
+        vector1_y = u.y - v.y
+        vector2_x = w.x - v.x
+        vector2_y = w.y - v.y
+    elif index == 3:  
+        vector1_x = u.x - w.x
+        vector1_y = u.y - w.y
+        vector2_x = v.x - w.x
+        vector2_y = v.y - w.y
+
+    dot_product = vector1_x*vector2_x + vector1_y*vector2_y
+    mag1 = math.sqrt(vector1_x*vector1_x + vector1_y*vector1_y)
+    mag2 = math.sqrt(vector2_x*vector2_x + vector2_y*vector2_y)
+    cosine_theta = dot_product/(mag1 * mag2)
+    angle = math.acos(cosine_theta) * radian_to_degrees
+    return angle
+
+def get_interior_angle_text(i):
+    angle = get_interior_angle(i)
+    return f'{angle:.1f}'
+
+def get_exterior_angle(index):
+    if index == 1:    # get two vectors from vertex1 and compute dot product
+        slope = (v.y - u.y) / (v.x - u.x)
+    elif index == 2: 
+        slope = (w.y - v.y) / (w.x - v.x)
+    elif index == 3:  
+        slope = (u.y - w.y) / (u.x - w.x)
+
+    angle = math.atan(slope) * radian_to_degrees
+    return angle
+
+def get_exterior_angle_text(i):
+    angle = get_exterior_angle(i)
+    return f'{angle:.1f}'
+
+def get_interior_line(index):
+    if index == 4:
+        angle = get_exterior_angle(1) - (get_interior_angle(1) / 3.0)
+    if index == 5:
+        angle = get_exterior_angle(1) - (2.0 * get_interior_angle(1) / 3.0)
+    if index == 6:
+        angle = get_exterior_angle(2) - (get_interior_angle(2) / 3.0)
+    if index == 7:
+        angle = get_exterior_angle(2) - (2.0 * get_interior_angle(2) / 3.0)
+    if index == 8:
+        angle = get_exterior_angle(3) - (get_interior_angle(3) / 3.0)
+    if index == 9:
+        angle = get_exterior_angle(3) - (2.0 * get_interior_angle(3) / 3.0)
+
+    if index == 4 or index == 5:
+        x_pt = u.x
+        y_pt = u.y
+    if index == 6 or index == 7:
+        x_pt = v.x
+        y_pt = v.y
+    if index == 8 or index == 9:
+        x_pt = w.x
+        y_pt = w.y
+
+    slope = math.tan(angle/radian_to_degrees)
+    y_intercept = y_pt - (slope * x_pt)
+    return slope, y_intercept
+
+def get_interior_line_text(i):
+    slope, intercept = get_interior_line(i)
+    return f'{slope:.2f},{intercept:.1f}'
+
+def get_line_intersection(i,j):
+    slope_i, intercept_i = get_interior_line(i)
+    slope_j, intercept_j = get_interior_line(j)
+    final_x = (intercept_j - intercept_i) / (slope_i - slope_j)
+    final_y = (slope_i * final_x) + intercept_i
+    return final_x, final_y
+
+def get_line_intersection_text(i, j):
+    x_final, y_final = get_line_intersection(i,j)
+    return f'{x_final:.1f},{y_final:.1f}'
+
+def redraw_line(i, j, x, y):
+    xdata = lines[i].get_xdata()
+    ydata = lines[i].get_ydata()
+    xdata[1] = x
+    ydata[1] = y
+    lines[i].set_xdata(xdata)
+    lines[i].set_ydata(ydata)
+
+    xdata = lines[j].get_xdata()
+    ydata = lines[j].get_ydata()
+    xdata[0] = x
+    ydata[0] = y
+    lines[j].set_xdata(xdata)
+    lines[j].set_ydata(ydata)
 
 class Point(object):
     def __init__(self, x, y):
         self.x = x
         self.y = y
 
-def Vertex_text(x, y):
-    return f'({x:.1f},{y:.1f})'
-
 class MoveableCircle(object):
-    def __init__(self, circle, vertices, vertex_text, lines):
+    def __init__(self, circle):
         self.circle = circle
-        self.vertices = vertices
-        self.vertex_text = vertex_text
-        self.lines = lines
         self.press = None
-
-    def redraw_line(self, i, j, x, y):
-        xdata = self.lines[i].get_xdata()
-        ydata = self.lines[i].get_ydata()
-        xdata[1] = x
-        ydata[1] = y
-        self.lines[i].set_xdata(xdata)
-        self.lines[i].set_ydata(ydata)
-
-        xdata = self.lines[j].get_xdata()
-        ydata = self.lines[j].get_ydata()
-        xdata[0] = x
-        ydata[0] = y
-        self.lines[j].set_xdata(xdata)
-        self.lines[j].set_ydata(ydata)
 
     def connect(self):
         'connect to all the events we need'
@@ -83,33 +178,81 @@ class MoveableCircle(object):
         dy = event.ydata - ypress
         x += dx
         y += dy
+        # x and y are the new coordinates of the circle just moved...use them
         # 1. Re-draw circle
         self.circle.center = (x, y)
 
-        # update u, v, w so that the new values are available to any item
+        # identify index of circle that was moved and set u, v, or w
         if self.circle.get_label() == "unus":
-            index = 0
-        elif self.circle.get_label() == "duo":
             index = 1
-        elif self.circle.get_label() == "tres":
+            u.x = x
+            u.y = y
+        elif self.circle.get_label() == "duo":
             index = 2
-        self.vertices[index] = (x,y)
+            v.x = x
+            v.y = y
+        elif self.circle.get_label() == "tres":
+            index = 3
+            w.x = x
+            w.y = y
 
         #  2.  Re-draw vertex text
-        text = Vertex_text(x, y)
-        self.vertex_text[index].set_text(text)
+        text = get_vertex_text(x, y)
+        vertex_text[index].set_text(text)
 
         #  3.  Re-draw exterior lines
-        if index == 0:    # re-draw lines 3 and 1
+        if index == 1:    # re-draw lines 3 and 1
             # x, y are the new end point of line 3
             # x, y are the new beginning point of line 1
-            self.redraw_line(2, 0, x, y)
-        elif index == 1:  # re-draw lines 1 and 2
-            self.redraw_line(0, 1, x, y)
-        elif index == 2:  # re-draw lines 2 and 3
-            self.redraw_line(1, 2, x, y)
+            redraw_line(3, 1, x, y)
+        elif index == 2:  # re-draw lines 1 and 2
+            redraw_line(1, 2, x, y)
+        elif index == 3:  # re-draw lines 2 and 3
+            redraw_line(2, 3, x, y)
 
-        #  4.  Get interior angles
+        #  Intermediate calculations
+        #  4.  Re-compute interior angles
+        for i in range(1,4):
+            text = get_interior_angle_text(i)
+            interior_angle_text[i].set_text(text)
+
+        #  5.  Re-compute exterior angles
+        for i in range(1,4):
+            text = get_exterior_angle_text(i)
+            exterior_angle_text[i].set_text(text)
+
+        #  6.  Compute slope, y-intercept of interior lines
+        text = get_interior_line_text(4)
+        interior_line_text[4].set_text(text)
+        text = get_interior_line_text(5)
+        interior_line_text[5].set_text(text)
+        text = get_interior_line_text(6)
+        interior_line_text[6].set_text(text)
+        text = get_interior_line_text(7)
+        interior_line_text[7].set_text(text)
+        text = get_interior_line_text(8)
+        interior_line_text[8].set_text(text)
+        text = get_interior_line_text(9)
+        interior_line_text[9].set_text(text)
+
+        #  7.  Compute intersection of lines
+        text = get_line_intersection_text(4,7)
+        line_intersection_text[1].set_text(text)
+        text = get_line_intersection_text(6,9)
+        line_intersection_text[2].set_text(text)
+        text = get_line_intersection_text(5,8)
+        line_intersection_text[3].set_text(text)
+
+        #  8.  Re-plot three inner points
+        pt_x, pt_y = get_line_intersection(4,7)
+        inner_vertices[1].set_xdata(pt_x)
+        inner_vertices[1].set_ydata(pt_y)
+        pt_x, pt_y = get_line_intersection(6,9)
+        inner_vertices[2].set_xdata(pt_x)
+        inner_vertices[2].set_ydata(pt_y)
+        pt_x, pt_y = get_line_intersection(5,8)
+        inner_vertices[3].set_xdata(pt_x)
+        inner_vertices[3].set_ydata(pt_y)
 
 
         self.circle.figure.canvas.draw()
@@ -119,16 +262,21 @@ class MoveableCircle(object):
 
 ##################################   Main    ######################################
 
-vertices = []       # u, v, and w
-circles = []        # circles are plt.Circle()
-vertex_text = []    # vertex_text are plt.text
-lines = []          # lines are the exterior (1-3) and interior lines (4-9)
-interior_angles_text = []  # interior_angles_text are plt.text
+# the None starting value is to avoid dealing with 0-index
+# these values get updated on motion
+circles = [None]        # circles are plt.Circle()
+vertex_text = [None]    # vertex_text are plt.text
+lines = [None]          # lines are the exterior (1-3) and interior lines (4-9)
+interior_angle_text = [None]  # interior angle of each vertex
+exterior_angle_text = [None]  # angle of exterior lines with x-axis
+interior_line_text = [None]   # slope and y-intercept for interior lines
+line_intersection_text = [None]  # the three inner triangle point as text
+inner_vertices = [None]          # the three inner triangle points
 
 fig = plt.figure(figsize=(16,10))
 axes = plt.axes()
-axes.set_xlim([-2,14])
-axes.set_ylim([-2,8])
+axes.set_xlim([-6,10])
+axes.set_ylim([-4,6])
 # for testing with Plot 2
 # axes.set_xlim([-16,36])
 # axes.set_ylim([-6,26])
@@ -136,32 +284,28 @@ font_size = 12
 radius = 0.25
 
 # set the three vertices
-u = Point(2, 5)
-v = Point(10, 3)
-w = Point(4, 0)
-
-vertices.append(u)
-vertices.append(v)
-vertices.append(w)
+u = Point(-2, 4)
+v = Point(6, 2)
+w = Point(0, -1)
 
 ###########################  circles 1,2,3 ######################################################
 #  1. Draw circles
 
-circle1 = plt.Circle((vertices[0].x,  vertices[0].y), radius, fc="blue", label="unus")
+circle1 = plt.Circle((u.x,  u.y), radius, fc="blue", label="unus")
 plt.gca().add_patch(circle1)
-circle = MoveableCircle(circle1, vertices, vertex_text, lines)
+circle = MoveableCircle(circle1)
 circle.connect()
 circles.append(circle)
 
-circle2 = plt.Circle((vertices[1].x,  vertices[1].y), radius, fc="blue", label="duo")
+circle2 = plt.Circle((v.x,  v.y), radius, fc="blue", label="duo")
 plt.gca().add_patch(circle2)
-circle = MoveableCircle(circle2, vertices, vertex_text, lines)
+circle = MoveableCircle(circle2)
 circle.connect()
 circles.append(circle)
 
-circle3 = plt.Circle((vertices[2].x,  vertices[2].y), radius, fc="blue", label="tres")
+circle3 = plt.Circle((w.x,  w.y), radius, fc="blue", label="tres")
 plt.gca().add_patch(circle3)
-circle = MoveableCircle(circle3, vertices, vertex_text, lines)
+circle = MoveableCircle(circle3)
 circle.connect()
 circles.append(circle)
 
@@ -169,16 +313,19 @@ circles.append(circle)
 ##########################  vertex_text 1,2,3  #########################################
 #  2. Draw vertex text
 
-text = Vertex_text(vertices[0].x, vertices[0].y)
-vertex_text1 = plt.text(0.01, 0.98, text, fontsize=font_size, transform=axes.transAxes)
+text = get_vertex_text(u.x, u.y)
+plt.text(0.01, 0.98, 'u', fontsize=font_size, transform=axes.transAxes)
+vertex_text1 = plt.text(0.01, 0.95, text, fontsize=font_size, transform=axes.transAxes)
 vertex_text.append(vertex_text1)
 
-text = Vertex_text(vertices[1].x, vertices[1].y)
-vertex_text2 = plt.text(0.93, 0.98, text, fontsize=font_size, transform=axes.transAxes)
+text = get_vertex_text(v.x, v.y)
+plt.text(0.92, 0.98, 'v', fontsize=font_size, transform=axes.transAxes)
+vertex_text2 = plt.text(0.92, 0.95, text, fontsize=font_size, transform=axes.transAxes)
 vertex_text.append(vertex_text2)
 
-text = Vertex_text(vertices[2].x, vertices[2].y)
-vertex_text3 = plt.text(0.46, 0.05, text, fontsize=font_size, transform=axes.transAxes)
+text = get_vertex_text(w.x, w.y)
+plt.text(0.46, 0.17, 'w', fontsize=font_size, transform=axes.transAxes)
+vertex_text3 = plt.text(0.46, 0.14, text, fontsize=font_size, transform=axes.transAxes)
 vertex_text.append(vertex_text3)
 
 
@@ -187,14 +334,96 @@ vertex_text.append(vertex_text3)
 line1 = plt.Line2D([u.x, v.x],[u.y, v.y], color='black', linewidth = 4)
 plt.gca().add_line(line1)
 lines.append(line1)
+interior_line_text.append(None)  # will never use these
 
 line2 = plt.Line2D([v.x, w.x],[v.y, w.y], color='black', linewidth = 4)
 plt.gca().add_line(line2)
 lines.append(line2)
+interior_line_text.append(None)
 
 line3 = plt.Line2D([w.x, u.x],[w.y, u.y], color='black', linewidth = 4)
 plt.gca().add_line(line3)
 lines.append(line3)
+interior_line_text.append(None)
 
+
+#########################  intermediate calculations   ###############################
+#  4.  Compute interior angles
+text = get_interior_angle_text(1)
+interior_angle_text1 = plt.text(0.01, 0.92, text, fontsize=font_size, transform=axes.transAxes)
+interior_angle_text.append(interior_angle_text1)
+
+text = get_interior_angle_text(2)
+interior_angle_text2 = plt.text(0.92, 0.92, text, fontsize=font_size, transform=axes.transAxes)
+interior_angle_text.append(interior_angle_text2)
+
+text = get_interior_angle_text(3)
+interior_angle_text3 = plt.text(0.46, 0.11, text, fontsize=font_size, transform=axes.transAxes)
+interior_angle_text.append(interior_angle_text3)
+
+#  5.  Compute exerior angles
+text = get_exterior_angle_text(1)
+exterior_angle_text1 = plt.text(0.01, 0.89, text, fontsize=font_size, transform=axes.transAxes)
+exterior_angle_text.append(exterior_angle_text1)
+
+text = get_exterior_angle_text(2)
+exterior_angle_text2 = plt.text(0.92, 0.89, text, fontsize=font_size, transform=axes.transAxes)
+exterior_angle_text.append(exterior_angle_text2)
+
+text = get_exterior_angle_text(3)
+exterior_angle_text3 = plt.text(0.46, 0.08, text, fontsize=font_size, transform=axes.transAxes)
+exterior_angle_text.append(exterior_angle_text3)
+
+#  6.  Compute slope, y-intercept of interior lines
+text = get_interior_line_text(4)
+interior_line_text4 = plt.text(0.01, 0.86, text, fontsize=font_size, transform=axes.transAxes)
+interior_line_text.append(interior_line_text4)
+text = get_interior_line_text(5)
+interior_line_text5 = plt.text(0.01, 0.83, text, fontsize=font_size, transform=axes.transAxes)
+interior_line_text.append(interior_line_text5)
+
+text = get_interior_line_text(6)
+interior_line_text6 = plt.text(0.92, 0.86, text, fontsize=font_size, transform=axes.transAxes)
+interior_line_text.append(interior_line_text6)
+text = get_interior_line_text(7)
+interior_line_text7 = plt.text(0.92, 0.83, text, fontsize=font_size, transform=axes.transAxes)
+interior_line_text.append(interior_line_text7)
+
+text = get_interior_line_text(8)
+interior_line_text8 = plt.text(0.46, 0.05, text, fontsize=font_size, transform=axes.transAxes)
+interior_line_text.append(interior_line_text8)
+text = get_interior_line_text(9)
+interior_line_text9 = plt.text(0.46, 0.02, text, fontsize=font_size, transform=axes.transAxes)
+interior_line_text.append(interior_line_text9)
+
+##################  line intersections  #############################################
+#  7.  Compute intersection of lines
+text = get_line_intersection_text(4,7)
+line_intersection_text_4_7 = plt.text(0.46, 0.98, text, fontsize=font_size, transform=axes.transAxes)
+line_intersection_text.append(line_intersection_text_4_7)
+
+text = get_line_intersection_text(6,9)
+line_intersection_text_6_9 = plt.text(0.95, 0.4, text, fontsize=font_size, transform=axes.transAxes)
+line_intersection_text.append(line_intersection_text_6_9)
+
+text = get_line_intersection_text(5,8)
+line_intersection_text_5_8 = plt.text(0.01, 0.4, text, fontsize=font_size, transform=axes.transAxes)
+line_intersection_text.append(line_intersection_text_5_8)
+
+#  8.  Plot three inner points
+inner_vertex = get_line_intersection(4,7)
+final_point1 = plt.Line2D([inner_vertex[0]],[inner_vertex[1]], color='green', marker='^', markersize=10)
+plt.gca().add_line(final_point1)
+inner_vertices.append(final_point1)
+
+inner_vertex = get_line_intersection(6,9)
+final_point2 = plt.Line2D([inner_vertex[0]],[inner_vertex[1]], color='green', marker='^', markersize=10)
+plt.gca().add_line(final_point2)
+inner_vertices.append(final_point2)
+
+inner_vertex = get_line_intersection(5,8)
+final_point3 = plt.Line2D([inner_vertex[0]],[inner_vertex[1]], color='green', marker='^', markersize=10)
+plt.gca().add_line(final_point3)
+inner_vertices.append(final_point3)
 
 plt.show()
