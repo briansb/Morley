@@ -131,6 +131,14 @@ def redraw_line(i, j, x, y):
     lines[j].set_xdata(xdata)
     lines[j].set_ydata(ydata)
 
+def redraw_interior_line(index, i, j, x, y):
+    pt_x, pt_y = get_line_intersection(i,j)
+    x_data = [x, pt_x]
+    y_data = [y, pt_y]
+    lines[index].set_xdata(x_data)
+    lines[index].set_ydata(y_data)
+
+
 class Point(object):
     def __init__(self, x, y):
         self.x = x
@@ -253,6 +261,33 @@ class MoveableCircle(object):
         pt_x, pt_y = get_line_intersection(5,8)
         inner_vertices[3].set_xdata(pt_x)
         inner_vertices[3].set_ydata(pt_y)
+
+        #  9.  Re-draw lines 4 - 9, the interior lines
+        if index == 1:    # re-draw lines 4 and 5
+            redraw_interior_line(4, 4, 7, x, y)
+            redraw_interior_line(5, 5, 8, x, y)
+            redraw_interior_line(6, 6, 9, v.x, v.y)
+            redraw_interior_line(7, 4, 7, v.x, v.y)
+            redraw_interior_line(8, 5, 8, w.x, w.y)
+            redraw_interior_line(9, 6, 9, w.x, w.y)
+        elif index == 2:  # re-draw lines 6 and 7
+            redraw_interior_line(4, 4, 7, u.x, u.y)
+            redraw_interior_line(5, 5, 8, u.x, u.y)
+            redraw_interior_line(6, 6, 9, x, y)
+            redraw_interior_line(7, 4, 7, x, y)
+            redraw_interior_line(8, 5, 8, w.x, w.y)
+            redraw_interior_line(9, 6, 9, w.x, w.y)
+        elif index == 3:  # re-draw lines 8 and 9
+            redraw_interior_line(4, 4, 7, u.x, u.y)
+            redraw_interior_line(5, 5, 8, u.x, u.y)
+            redraw_interior_line(6, 6, 9, v.x, v.y)
+            redraw_interior_line(7, 4, 7, v.x, v.y)
+            redraw_interior_line(8, 5, 8, x, y)
+            redraw_interior_line(9, 6, 9, x, y)
+
+
+
+
 
 
         self.circle.figure.canvas.draw()
@@ -425,5 +460,38 @@ inner_vertex = get_line_intersection(5,8)
 final_point3 = plt.Line2D([inner_vertex[0]],[inner_vertex[1]], color='green', marker='^', markersize=10)
 plt.gca().add_line(final_point3)
 inner_vertices.append(final_point3)
+
+#########################  lines 4 - 9  ############################################
+#  9.  Draw lines from vertices to inner points
+inner_vertex = get_line_intersection(4,7)
+line4 = plt.Line2D([u.x, inner_vertex[0]],[u.y, inner_vertex[1]], color='red', linewidth = 2)
+plt.gca().add_line(line4)
+lines.append(line4)
+inner_vertex = get_line_intersection(5,8)
+line5 = plt.Line2D([u.x, inner_vertex[0]],[u.y, inner_vertex[1]], color='red', linewidth = 2)
+plt.gca().add_line(line5)
+lines.append(line5)
+inner_vertex = get_line_intersection(6,9)
+line6 = plt.Line2D([v.x, inner_vertex[0]],[v.y, inner_vertex[1]], color='red', linewidth = 2)
+plt.gca().add_line(line6)
+lines.append(line6)
+inner_vertex = get_line_intersection(4,7)
+line7 = plt.Line2D([v.x, inner_vertex[0]],[v.y, inner_vertex[1]], color='red', linewidth = 2)
+plt.gca().add_line(line7)
+lines.append(line7)
+inner_vertex = get_line_intersection(5,8)
+line8 = plt.Line2D([w.x, inner_vertex[0]],[w.y, inner_vertex[1]], color='red', linewidth = 2)
+plt.gca().add_line(line8)
+lines.append(line8)
+inner_vertex = get_line_intersection(6,9)
+line9 = plt.Line2D([w.x, inner_vertex[0]],[w.y, inner_vertex[1]], color='red', linewidth = 2)
+plt.gca().add_line(line9)
+lines.append(line9)
+
+
+
+
+
+
 
 plt.show()
