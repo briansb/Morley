@@ -143,7 +143,7 @@ def redraw_inner_line():
     x2, y2 = get_line_intersection(6,9)
     x3, y3 = get_line_intersection(5,8)
     x_data = [x1,x2,x3,x1]
-    y_data = [y1,y2,y3,y1]
+    y_data = [y1,y2,y3,y1]  
     inner_line.set_xdata(x_data)
     inner_line.set_ydata(y_data)
 
