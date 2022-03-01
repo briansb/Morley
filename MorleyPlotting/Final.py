@@ -114,7 +114,7 @@ def get_line_intersection(i,j):
 
 def get_line_intersection_text(index, i, j):
     x_final, y_final = get_line_intersection(i,j)
-    return f'Inner vertex{index} = {x_final:.1f},{y_final:.1f}'
+    return f'Inner vertex{index} = {x_final:.2f},{y_final:.2f}'
 
 def redraw_line(i, j, x, y):
     xdata = lines[i].get_xdata()
