@@ -56,7 +56,7 @@ def get_interior_angle(index):
 
 def get_interior_angle_text(i):
     angle = get_interior_angle(i)
-    return f'Interior angle = {angle:.1f}'
+    return f'Interior angle = {angle:.2f}'
 
 def get_exterior_angle(index):
     if index == 1:    # get two vectors from vertex1 and compute dot product
@@ -71,7 +71,7 @@ def get_exterior_angle(index):
 
 def get_exterior_angle_text(i):
     angle = get_exterior_angle(i)
-    return f'Off-horizontal angle = {angle:.1f}'
+    return f'Off-horizontal angle = {angle:.2f}'
 
 def get_interior_line(index):
     if index == 4:
@@ -103,7 +103,7 @@ def get_interior_line(index):
 
 def get_interior_line_text(i):
     slope, intercept = get_interior_line(i)
-    return f'   line{i}, {slope:.2f},{intercept:.1f}'
+    return f'   line{i}, {slope:.2f}, {intercept:.2f}'
 
 def get_line_intersection(i,j):
     slope_i, intercept_i = get_interior_line(i)
@@ -114,7 +114,7 @@ def get_line_intersection(i,j):
 
 def get_line_intersection_text(index, i, j):
     x_final, y_final = get_line_intersection(i,j)
-    return f'Inner vertex{index} = {x_final:.2f},{y_final:.2f}'
+    return f'Inner vertex{index} = {x_final:.2f}, {y_final:.2f}'
 
 def redraw_line(i, j, x, y):
     xdata = lines[i].get_xdata()
